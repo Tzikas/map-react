@@ -3,10 +3,13 @@ export const INCREMENT = 'counter/INCREMENT'
 export const DECREMENT_REQUESTED = 'counter/DECREMENT_REQUESTED'
 export const DECREMENT = 'counter/DECREMENT'
 
+export const LOCATION = 'counter/LOCATION' 
+
 const initialState = {
   count: 0,
   isIncrementing: false,
-  isDecrementing: false
+  isDecrementing: false,
+  theLocation: false 
 }
 
 export default (state = initialState, action) => {
@@ -36,6 +39,14 @@ export default (state = initialState, action) => {
         count: state.count - 1,
         isDecrementing: !state.isDecrementing
       }
+    case LOCATION: 
+      console.log(state,action)
+      state.theLocation = action.payload
+      return {
+      	...state,
+	theLocation: state.theLocation
+
+      }
 
     default:
       return state
@@ -43,7 +54,6 @@ export default (state = initialState, action) => {
 }
 
 export const increment = () => {
-	console.log('wtf')
   return dispatch => {
     dispatch({
       type: INCREMENT_REQUESTED
@@ -94,3 +104,15 @@ export const decrementAsync = () => {
     }, 3000)
   }
 }
+
+
+export const setLocation = (yo) => {
+  return dispatch => {
+    dispatch({
+      type: LOCATION,
+      payload:yo
+    })
+  }
+}
+
+

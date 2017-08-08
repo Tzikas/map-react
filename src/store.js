@@ -31,5 +31,5 @@ const store = createStore(
   initialState,
   composedEnhancers
 )
-
+console.log(store)
 export default store

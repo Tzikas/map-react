@@ -1,5 +1,19 @@
 /* global google */
 
+//import React from 'react'
+import { push } from 'react-router-redux'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+import {
+  increment,
+  incrementAsync,
+  decrement,
+  decrementAsync,
+  setLocation
+} from './randomMap'
+
+
+/***/
 import canUseDOM from "can-use-dom";
 
 import raf from "raf";
@@ -18,10 +32,10 @@ import {
 import 'whatwg-fetch';
 
 const containerStyle = {
-	display: 'inline-block', 
+	display: 'block', 
 	height: '250px',
 	width: '250px',
-	padding: '10px'
+	padding: '10px 0'
 }
 
 const geolocation = (
@@ -34,27 +48,24 @@ const geolocation = (
 		})
 		);
 
-const RandomCity = withGoogleMap(props => (
-	<GoogleMap
-		defaultZoom={12}
-		center={props.center}
-	>
+const RandomCity = withGoogleMap(props => {
+	//console.log(props) 
+	return (
+	<div>
+		<i>{props.name}</i>		
+		
+		<GoogleMap defaultZoom={12} center={props.center}>
+			<Marker position={props.center} title={props.name} />
+		</GoogleMap>
+	</div>
+	)
+});
 
-		<Marker
-			position={props.center}
-			title={props.name}
-		/>
-		<h1>{props.name}</h1>	
-	</GoogleMap>
-));
 
-/*
- * https://developers.google.com/maps/documentation/javascript/examples/map-geolocation
- *
- * Add <script src="https://maps.googleapis.com/maps/api/js"></script> to your HTML to provide google.maps reference
- */
-export default class RandomCityMap extends Component {
 
+
+
+class RandomCityMap extends Component {
 	state = {
 		center: null,
 		name: null
@@ -64,7 +75,6 @@ export default class RandomCityMap extends Component {
 	isUnmounted = false;
 
 	componentDidMount() {
-		console.log(this)
 
 			//fetch('/api/randomcity')
 		fetch('https://pure-river-42551.herokuapp.com/api/randomcity',{
@@ -74,44 +84,25 @@ export default class RandomCityMap extends Component {
 			},
 		})
 		.then((response) => {
-			console.log(response) 
+			//console.log(response) 
 			return response.json()
 		})
 		.then((city) => {
-			this.setState({
-				center: {
-					lat: city.lat,
-					lng: city.lon,
-				},
-				name: city.city,
-			})
+
+			var c = {
+					center: {
+						lat: city.lat,
+						lng: city.lon,
+					},
+					name: city.city,
+				}
+			this.setState(c)
+			this.props.setLocation(c)
 		})
 		.catch((err) => {
-			console.log(err);
+			//console.log(err);
 		});
 
-		// geolocation.getCurrentPosition((position) => {
-		//   if (this.isUnmounted) {
-		//     return;
-		//   }
-		//   this.setState({
-		//     center: {
-		//       lat: position.coords.latitude,
-		//       lng: position.coords.longitude,
-		//     }
-		//   });
-
-		// }, (reason) => {
-		//   if (this.isUnmounted) {
-		//     return;
-		//   }
-		//   this.setState({
-		//     center: {
-		//       lat: 60,
-		//       lng: 105,
-		//     }
-		//   });
-		// });
 	}
 
 	componentWillUnmount() {
@@ -121,24 +112,56 @@ export default class RandomCityMap extends Component {
 	render() {
 		return (
 
-
 				<div>
 
-				<RandomCity
-					containerElement={
-						<div style={containerStyle} />
-					}
-					mapElement={
-						<div style={{ height: `250px`, width: `250px` }} />
-					}
-					center={this.state.center}
-					name={this.state.name}
-					onClick={this.props.sup}
-				/>
+					<h5 style={{margin:`10px 0 0 0`}} onClick={this.props.increment} > 
+
+						{this.props.count} {this.state.name}
+					</h5>
+					<button>{this.state.name} is the closest</button>
+					
+					<RandomCity
+						containerElement={
+							<div style={containerStyle} />
+						}
+						mapElement={
+							<div style={{ height: `250px`, width: `250px` }} />
+						}
+						center={this.state.center}
+						name={this.state.name}
+						onClick={this.props.increment}
+						
+					/>
+
+
 
 				</div>
 
 		       );
 	}
 }
+
+const mapStateToProps = state => {
+
+	 return({
+		  count: state.counter.count,
+		  isIncrementing: state.counter.isIncrementing,
+		  isDecrementing: state.counter.isDecrementing,
+	   	  theLocation: state.randomMap.theLocation	 
+	})
+}
+const mapDispatchToProps = dispatch => bindActionCreators({
+  increment,
+  incrementAsync,
+  decrement,
+  decrementAsync,
+  setLocation,      
+  changePage: () => push('/about-us')
+}, dispatch)
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(RandomCityMap)
+
 
