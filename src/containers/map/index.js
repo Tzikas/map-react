@@ -1,5 +1,13 @@
 /* global google */
+import { push } from 'react-router-redux'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+import {
+  setLocation,
+  addMap
+} from './reducers'
 
+import RandomCityMap from '../random-cities'
 import canUseDOM from "can-use-dom";
 
 import raf from "raf";
@@ -46,7 +54,7 @@ const GeolocationExampleGoogleMap = withGoogleMap(props => (
  *
  * Add <script src="https://maps.googleapis.com/maps/api/js"></script> to your HTML to provide google.maps reference
  */
-export default class GeolocationExample extends Component {
+class YourMap extends Component {
 
 	state = {
 		center: null,
@@ -86,16 +94,35 @@ export default class GeolocationExample extends Component {
 
 	render() {
 		return (
+
+			<div>
 			<GeolocationExampleGoogleMap
 				containerElement={
-					<div style={{ height: `500px` }} />
+					<div style={{ height: `200px` }} />
 				}
 				mapElement={
-					<div style={{ height: `500px` }} />
+					<div style={{ height: `200px` }} />
 				}
 				center={this.state.center}
 			/>
+			<RandomCityMap />
+			</div>
 		);
 	}
 }
 
+const mapStateToProps = state => ({
+  count: state.counter.count,
+  theLocation: state.yourMap.theLocation
+})
+
+const mapDispatchToProps = dispatch => bindActionCreators({
+  setLocation,
+  addMap,
+  changePage: () => push('/about-us')
+}, dispatch)
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(YourMap)
